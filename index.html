@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>TRIVOX AI IMPACT | Admin Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{--brand:#5957e8;--nav:70px;--side:260px;--line:#e9eaf0;--ink:#171717}
+
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font-family:Manrope,Arial,sans-serif;background:#f8f9fc;color:var(--ink)}button{font:inherit}
+
+.topbar{position:fixed;inset:0 0 auto;height:var(--nav);background:white;border-bottom:1px solid var(--line);z-index:20;display:flex;align-items:center;padding:0 32px;gap:14px}
+
+.brand{font-weight:800;font-size:20px;letter-spacing:-.9px;white-space:nowrap}.brand span{color:var(--brand);margin-left:6px}
+
+.menu-toggle{display:none;border:0;background:transparent;padding:8px;cursor:pointer;font-size:23px;color:var(--ink)}
+
+.sidebar{position:fixed;top:var(--nav);bottom:0;left:0;width:var(--side);padding:28px 14px;background:#fff;border-right:1px solid var(--line);z-index:15;overflow:auto}
+
+.sidebar-caption{font-size:10px;font-weight:800;letter-spacing:1.4px;color:#9a9ca8;margin:0 14px 15px}
+
+.nav-item{width:100%;display:flex;align-items:center;gap:13px;text-align:left;border:0;background:transparent;border-radius:11px;padding:15px 14px;margin-bottom:7px;color:#626577;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s,color .15s}
+
+.nav-item:hover{background:#f4f3ff;color:var(--brand)}.nav-item.active{background:#f0efff;color:var(--brand)}.nav-icon{width:23px;text-align:center;font-size:17px;flex:none}
+
+.main{margin-left:var(--side);padding:calc(var(--nav) + 35px) 36px 36px;min-height:100vh}.section{display:none}.section.active{display:block}.eyebrow{font-size:10px;letter-spacing:1.5px;font-weight:800;color:var(--brand);margin-bottom:9px}.section h1{font-size:clamp(24px,3vw,34px);letter-spacing:-1.5px;margin:0 0 9px}.section .sub{font-size:12px;color:#888b98;line-height:1.7;margin:0 0 25px}
+
+.panel{min-height:250px;background:white;border:1px solid var(--line);border-radius:15px;padding:25px}.panel h2{font-size:16px;margin:0 0 9px}.panel p{font-size:12px;line-height:1.8;color:#888b98;margin:0}.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:190px}.placeholder .big-icon{font-size:32px;margin-bottom:15px}
+
+.overlay{display:none}
+
+@media(max-width:800px){:root{--nav:62px}.topbar{padding:0 16px}.brand{font-size:17px}.menu-toggle{display:block}.sidebar{width:min(275px,85vw);transform:translateX(-100%);transition:transform .2s}.sidebar.open{transform:translateX(0)}.overlay.open{display:block;position:fixed;inset:var(--nav) 0 0;background:rgba(15,23,42,.3);z-index:14}.main{margin-left:0;padding:calc(var(--nav) + 25px) 16px 25px}.panel{padding:18px}}
+
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}.tools input{flex:1;min-width:200px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;outline:none}.tools button{border:1px solid var(--line);border-radius:9px;background:#fff;padding:10px 14px;font-size:12px;font-weight:700;cursor:pointer}.tools button:hover{background:#f3f2ff}.summary{display:flex;align-items:center;gap:12px;margin-bottom:16px}.summary strong{font-size:30px}.summary span,.status{font-size:12px;color:#858795}.status{padding:15px 0}.status.error{color:#b42318}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:980px;text-align:left;font-size:12px}th{background:#f8f9fc;color:#6f7281;font-size:11px}td,th{padding:13px 11px;border-bottom:1px solid var(--line)}td{overflow-wrap:anywhere;max-width:270px;line-height:1.6}.pill{display:inline-block;padding:5px 9px;background:#e9f9ef;border-radius:20px;color:#157347;font-weight:700}
+
+.spinner{display:inline-block;width:23px;height:23px;border:3px solid #e9e7ff;border-top-color:#5957e8;border-radius:50%;animation:rotate .7s linear infinite;vertical-align:middle}@keyframes rotate{to{transform:rotate(360deg)}}.status:has(.spinner){display:flex;justify-content:center;align-items:center;min-height:100px}.price-input{width:105px;max-width:100%;padding:9px;border:1px solid var(--line);border-radius:8px}.save-price{border:0;background:var(--brand);color:#fff;border-radius:8px;padding:10px 14px;cursor:pointer}.save-price:disabled{opacity:.6;cursor:wait}
+
+.enrollment-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:0 0 22px}.stat-card{border:1px solid #e9eaf0;background:#fff;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 3px 15px rgba(35,37,75,.035)}.stat-icon{width:32px;height:32px;border-radius:10px;background:#f0efff;color:#5957e8;display:grid;place-items:center;font-size:19px;font-weight:800;margin-bottom:3px}.stat-icon.green{background:#eaf9ef;color:#17834b}.stat-icon.blue{background:#eaf3ff;color:#2867bd}.stat-icon.amber{background:#fff5e3;color:#bd7b12}.stat-label{font-size:12px;color:#676b7a;font-weight:750}.stat-card strong{font-size:29px;line-height:1.25;letter-spacing:-1px}.stat-card small{color:#999cab;font-size:10px}@media(max-width:1100px){.enrollment-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.enrollment-stats{gap:8px}.stat-card{padding:13px}.stat-card strong{font-size:24px}.stat-card small{font-size:9px}}
+/* Keep each section's search and action controls visible while scrolling. */
+.section .tools{position:sticky;top:calc(var(--nav) + 8px);z-index:10;background:#fff;padding:12px 0;margin-top:-12px;border-bottom:1px solid var(--line);box-shadow:0 6px 12px -12px rgba(0,0,0,.2)}
+</style>
+
+</head>
+
+<body>
+
+<header class="topbar"><button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">☰</button><div class="brand">TRIVOX <span>AI IMPACT</span></div></header>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar" aria-label="Admin navigation">
+
+<div class="sidebar-caption">MANAGEMENT</div>
+
+<button class="nav-item active" data-page="free" aria-current="page"><span class="nav-icon">♧</span>Free Enrollments</button>
+
+<button class="nav-item" data-page="paid"><span class="nav-icon">▣</span>Paid Enrollments</button>
+
+<button class="nav-item" data-page="prices"><span class="nav-icon">₹</span>Price Updates</button>
+
+</aside>
+
+<main class="main">
+
+<section class="section active" id="page-free"><div class="panel"><div class="tools"><input id="searchFree" type="search" placeholder="Search email, course, student ID..." aria-label="Search enrollments"><button id="refreshFree">Refresh</button><button id="exportFree">Export CSV</button></div><div class="enrollment-stats" aria-label="Free enrollment overview">
+<div class="stat-card"><span class="stat-icon">◎</span><span class="stat-label">Total Enrollments</span><strong id="freeCount">—</strong><small>All free course enrollments</small></div>
+<div class="stat-card"><span class="stat-icon green">✓</span><span class="stat-label">Active</span><strong id="freeActiveCount">—</strong><small>Currently active</small></div>
+<div class="stat-card"><span class="stat-icon blue">★</span><span class="stat-label">Completed</span><strong id="freeCompletedCount">—</strong><small>Successfully completed</small></div>
+<div class="stat-card"><span class="stat-icon amber">◷</span><span class="stat-label">Other Status</span><strong id="freeOtherCount">—</strong><small>Pending or other statuses</small></div>
+</div><div id="freeMessage" class="status" role="status"><span class="spinner" aria-label="Please wait"></span></div><div class="table-wrap"><table id="freeTable" hidden><thead><tr><th>Enrollment ID</th><th>Student ID</th><th>Email</th><th>Course</th><th>Course ID</th><th>Status</th><th>Enrollment Date & Time (IST)</th></tr></thead><tbody id="freeRows"></tbody></table></div></div></section>
+
+<section class="section" id="page-paid"><div class="panel"><div class="tools"><input id="searchPaid" type="search" placeholder="Search students or courses..."><button id="refreshPaid">Refresh</button><button id="exportPaid">Export CSV</button></div><div class="enrollment-stats" aria-label="Paid payment overview">
+<div class="stat-card"><span class="stat-icon">◎</span><span class="stat-label">Total Payments</span><strong id="paidCount">—</strong><small>All payment records</small></div>
+<div class="stat-card"><span class="stat-icon green">✓</span><span class="stat-label">Successful</span><strong id="paidSuccessCount">—</strong><small>Captured or paid</small></div>
+<div class="stat-card"><span class="stat-icon amber">◷</span><span class="stat-label">Pending</span><strong id="paidPendingCount">—</strong><small>Awaiting payment</small></div>
+<div class="stat-card"><span class="stat-icon blue">×</span><span class="stat-label">Failed / Other</span><strong id="paidOtherCount">—</strong><small>Unsuccessful or other statuses</small></div>
+</div><div id="paidMessage" class="status" role="status"><span class="spinner"></span></div><div id="paymentDiagnostic" style="font-size:11px;color:#777;margin-bottom:10px"></div><div class="table-wrap"><table id="paidTable" hidden><thead><tr><th>Record ID</th><th>Student Email</th><th>User ID</th><th>Course ID</th><th>Course</th><th>Payment ID</th><th>Amount Paid</th><th>Payment Method</th><th>Status</th><th>Captured Date & Time (IST)</th><th>Created Date & Time (IST)</th></tr></thead><tbody id="paidRows"></tbody></table></div></div></section>
+
+<section class="section" id="page-prices"><div class="panel"><div class="tools"><input id="searchPrices" type="search" placeholder="Search courses..."><button id="refreshPrices">Refresh</button></div><div id="priceMessage" class="status" role="status"><span class="spinner"></span></div><div class="table-wrap"><table id="priceTable" hidden><thead><tr><th>Course ID</th><th>Course</th><th>Current Price (₹)</th><th>New Price (₹)</th><th>Action</th><th>Last Saved (IST)</th></tr></thead><tbody id="priceRows"></tbody></table></div></div></section>
+
+</main>
+
+<script>
+
+const sidebar=document.getElementById('sidebar');
+
+const overlay=document.getElementById('overlay');
+
+const toggle=document.getElementById('menuToggle');
+
+function closeMenu(){sidebar.classList.remove('open');overlay.classList.remove('open');toggle.setAttribute('aria-expanded','false')}
+
+toggle.addEventListener('click',()=>{const open=sidebar.classList.toggle('open');overlay.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open))});
+
+overlay.addEventListener('click',closeMenu);
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+
+document.querySelectorAll('.nav-item').forEach(button=>button.addEventListener('click',()=>{
+
+ const page=button.dataset.page;
+
+ document.querySelectorAll('.nav-item').forEach(item=>{const active=item===button;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});
+
+ document.querySelectorAll('.section').forEach(section=>section.classList.toggle('active',section.id==='page-'+page));
+
+ closeMenu();
+
+}));
+
+</script>
+
+<script>
+
+// Browser-only REST API. No external Supabase SDK needed.
+
+// RLS still applies to the publishable key: no browser code can bypass it.
+
+const SUPABASE_URL = 'https://zuzhxugdibzetwoliwxm.supabase.co';
+
+const SUPABASE_KEY = 'sb_publishable_RmJqiS4bPrDdhSxae_Qy8g_2ews0cW1';
+
+const $ = id => document.getElementById(id);
+
+const fmtDate = v => { if (!v) return '—'; const d=new Date(v); return isNaN(d.getTime())?'—':new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}).format(d)+' IST'; };
+
+const fmtMoney = v => {const n=Number(v);return v==null||!Number.isFinite(n)?'—':'₹'+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});};
+
+function td(tr,v){const x=document.createElement('td');x.textContent=v==null||v===''?'—':String(v);tr.appendChild(x);return x;}
+
+function busy(id){$(id).className='status';$(id).innerHTML='<span class="spinner"></span>';}
+
+function showError(id,e){$(id).className='status error';$(id).textContent=e.message||String(e);}
+
+async function request(path,opts={}){
+
+  let response;
+
+  try { response=await fetch(SUPABASE_URL+'/rest/v1/'+path,{...opts,headers:{'apikey':SUPABASE_KEY,'Accept':'application/json',...(opts.headers||{})}}); }
+
+  catch(e){throw new Error('Network error connecting to Supabase: '+e.message);}
+
+  const raw=await response.text();let body;try{body=raw?JSON.parse(raw):null}catch{body=raw;}
+
+  if(!response.ok)throw new Error('Supabase HTTP '+response.status+': '+(body?.message||body?.hint||raw||'Unknown error'));
+
+  return body;
+
+}
+
+async function getAll(table,query=''){
+
+  const records=[];
+
+  for(let start=0;start<50000;start+=1000){
+
+    const join=query?'&'+query:'';
+
+    const page=await request(encodeURIComponent(table)+'?select=*'+join,{headers:{Range:`${start}-${start+999}`,'Range-Unit':'items'}});
+
+    if(!Array.isArray(page))throw new Error('Unexpected Supabase response for '+table);
+
+    records.push(...page);if(page.length<1000)break;
+
+  }
+
+  return records;
+
+}
+
+function exportCsv(filename,headers,rows){
+
+  if(!rows.length)return;
+
+  const escape=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+
+  const csv=[headers.join(','),...rows.map(row=>row.map(escape).join(','))].join('\r\n');
+
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+
+  const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+}
+
+let freeRecords=[];
+
+function renderFree(){
+
+ const term=$('searchFree').value.trim().toLowerCase();
+
+ const rows=freeRecords.filter(r=>[r.id,r.user_id,r.user_email,r.course_title,r.course_id,r.enrollment_status].some(v=>String(v??'').toLowerCase().includes(term)));
+
+ $('freeRows').replaceChildren();for(const r of rows){const tr=document.createElement('tr');[r.id,r.user_id,r.user_email,r.course_title,r.course_id,r.enrollment_status,fmtDate(r.enrolled_at)].forEach(v=>td(tr,v));$('freeRows').appendChild(tr);}
+
+ $('freeTable').hidden=!rows.length;$('freeMessage').textContent=rows.length?'':(term?'No matching enrollments.':'No free enrollments visible.');
+
+}
+
+async function loadFree(){busy('freeMessage');$('freeTable').hidden=true;try{freeRecords=await getAll('course_enrollments','course_type=eq.free&order=enrolled_at.desc');$('freeCount').textContent=freeRecords.length.toLocaleString('en-IN');
+const statusOf=r=>String(r.enrollment_status??'').trim().toLowerCase();
+const active=freeRecords.filter(r=>['active','enrolled','in_progress','in progress'].includes(statusOf(r))).length;
+const completed=freeRecords.filter(r=>['completed','complete'].includes(statusOf(r))).length;
+$('freeActiveCount').textContent=active.toLocaleString('en-IN');
+$('freeCompletedCount').textContent=completed.toLocaleString('en-IN');
+$('freeOtherCount').textContent=(freeRecords.length-active-completed).toLocaleString('en-IN');
+renderFree();}catch(e){showError('freeMessage',e);$('freeCount').textContent='—';['freeActiveCount','freeCompletedCount','freeOtherCount'].forEach(id=>$(id).textContent='—');}}
+
+$('searchFree').addEventListener('input',renderFree);$('refreshFree').addEventListener('click',loadFree);
+
+$('exportFree').addEventListener('click',()=>exportCsv('trivox_free_enrollments.csv',['id','user_id','user_email','course_type','course_id','course_title','enrollment_status','enrolled_at'],freeRecords.map(r=>[r.id,r.user_id,r.user_email,r.course_type,r.course_id,r.course_title,r.enrollment_status,r.enrolled_at])));
+
+let paidRecords=[];
+
+function amount(p){return p.amount_rupees!=null?fmtMoney(p.amount_rupees):p.amount_paise!=null?fmtMoney(Number(p.amount_paise)/100):'—';}
+
+function paidCells(p){return [p.id,p.user_email,p.user_id,p.course_id,p.course_title,p.razorpay_payment_id,amount(p),p.payment_method,p.status,fmtDate(p.captured_at),fmtDate(p.created_at)];}
+
+function renderPaid(){
+
+ const term=$('searchPaid').value.trim().toLowerCase();
+
+ const rows=paidRecords.filter(p=>paidCells(p).some(v=>String(v??'').toLowerCase().includes(term)));
+
+ $('paidRows').replaceChildren();for(const p of rows){const tr=document.createElement('tr');paidCells(p).forEach(v=>td(tr,v));$('paidRows').appendChild(tr);}
+
+ $('paidTable').hidden=!rows.length;
+
+ $('paidMessage').textContent=rows.length?'':(term?'No matching payment records.':'No payment records available to this connection.');
+
+}
+
+async function loadPaid(){
+
+ busy('paidMessage');$('paidTable').hidden=true;$('paymentDiagnostic').textContent='';
+
+ try{
+
+   paidRecords=await getAll('trivox_course_payments','order=created_at.desc');
+
+   $('paidCount').textContent=paidRecords.length.toLocaleString('en-IN');
+   const paymentStatus=p=>String(p.status??'').trim().toLowerCase();
+   const successful=paidRecords.filter(p=>['captured','paid','success','successful','completed'].includes(paymentStatus(p))).length;
+   const pending=paidRecords.filter(p=>['pending','created','authorized','processing','initiated'].includes(paymentStatus(p))).length;
+   $('paidSuccessCount').textContent=successful.toLocaleString('en-IN');
+   $('paidPendingCount').textContent=pending.toLocaleString('en-IN');
+   $('paidOtherCount').textContent=(paidRecords.length-successful-pending).toLocaleString('en-IN');
+
+   renderPaid();
+
+   if(!paidRecords.length)$('paymentDiagnostic').textContent='No payment records returned. Check table data and RLS permissions.';
+
+ }catch(e){$('paidCount').textContent='—';['paidSuccessCount','paidPendingCount','paidOtherCount'].forEach(id=>$(id).textContent='—');showError('paidMessage',e);}
+
+}
+
+$('searchPaid').addEventListener('input',renderPaid);$('refreshPaid').addEventListener('click',loadPaid);
+
+$('exportPaid').addEventListener('click',()=>exportCsv('trivox_paid_payments.csv',['id','user_email','user_id','course_id','course_title','razorpay_payment_id','amount_rupees','payment_method','status','captured_at','created_at'],paidRecords.map(p=>[p.id,p.user_email,p.user_id,p.course_id,p.course_title,p.razorpay_payment_id,p.amount_rupees??(p.amount_paise==null?'':Number(p.amount_paise)/100),p.payment_method,p.status,p.captured_at,p.created_at])));
+
+let priceRecords=[];
+const savedPriceTimes=new Map();
+
+function renderPrices(){
+
+ const term=$('searchPrices').value.trim().toLowerCase();const body=$('priceRows');body.replaceChildren();
+
+ const rows=priceRecords.filter(r=>[r.id,r.title].some(v=>String(v??'').toLowerCase().includes(term)));
+
+ for(const r of rows){
+
+   const tr=document.createElement('tr');td(tr,r.id);td(tr,r.title);td(tr,fmtMoney(r.price));
+
+   const inputCell=document.createElement('td');const input=document.createElement('input');input.className='price-input';input.type='number';input.min='0';input.step='0.01';input.value=Number(r.price??0);inputCell.appendChild(input);tr.appendChild(inputCell);
+
+   const action=document.createElement('td');const button=document.createElement('button');button.className='save-price';button.textContent='Save';
+
+   button.onclick=async()=>{
+
+     const val=Number(input.value);if(input.value.trim()===''||!Number.isFinite(val)||val<0){alert('Enter a valid price');return;}
+
+     button.disabled=true;button.textContent='Saving...';
+
+     try{
+
+       const changed=await request('course_catalog?id=eq.'+encodeURIComponent(r.id),{method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({price:val})});
+
+       if(!Array.isArray(changed)||!changed.length)throw new Error('Update returned no rows. Check course ID and RLS UPDATE permission.');
+
+       r.price=changed[0].price;r._lastSaved=new Date().toISOString();savedPriceTimes.set(String(r.id),r._lastSaved);$('priceMessage').className='status';$('priceMessage').textContent='Price updated successfully for '+r.title+' at '+fmtDate(r._lastSaved);renderPrices();
+
+     }catch(e){showError('priceMessage',e);}finally{button.disabled=false;button.textContent='Save';}
+
+   };action.appendChild(button);tr.appendChild(action);td(tr,r._lastSaved?fmtDate(r._lastSaved):'—');body.appendChild(tr);
+
+ }
+
+ $('priceTable').hidden=!rows.length;if(!rows.length)$('priceMessage').textContent=term?'No matching courses.':'No courses visible.';
+
+}
+
+async function loadPrices(){busy('priceMessage');$('priceTable').hidden=true;try{priceRecords=await getAll('course_catalog','order=id.asc');priceRecords.forEach(r=>{r._lastSaved=savedPriceTimes.get(String(r.id))||null});$('priceMessage').textContent='';renderPrices();}catch(e){showError('priceMessage',e);}}
+
+$('searchPrices').addEventListener('input',renderPrices);$('refreshPrices').addEventListener('click',loadPrices);
+
+document.querySelector('[data-page="paid"]').addEventListener('click',loadPaid);
+
+document.querySelector('[data-page="prices"]').addEventListener('click',loadPrices);
+
+loadFree();
+
+</script>
+
+</body>
+
+</html>
